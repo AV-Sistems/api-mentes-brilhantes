@@ -1,11 +1,13 @@
 package br.com.avsistems.dto.request;
 
-import br.com.avsistems.type.UserType;
+import java.util.List;
+import java.util.UUID;
 
 public record UserCreateDto(
         String name,
         String email,
         String password,
-        UserType userType
+        List<UUID> completedModuleIds,
+        List<UUID> receivedAwardIds
 ) {
 }

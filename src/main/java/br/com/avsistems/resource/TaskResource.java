@@ -8,6 +8,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @Path("/task")
@@ -19,8 +20,8 @@ public class TaskResource {
     TaskService taskService;
 
     @POST
-    public Response createTask(TaskRequestDto taskRequestDto){
-        TaskResponseDto taskResponse = taskService.createTask(taskRequestDto);
+    public Response createTask(TaskRequestDto form) throws IOException {
+        TaskResponseDto taskResponse = taskService.createTask(form);
         return Response.status(Response.Status.CREATED).entity(taskResponse).build();
     }
 
@@ -31,27 +32,50 @@ public class TaskResource {
 
     @GET
     @Path("/name/{name}")
-    public Response findByName(String name){
+    public Response findByName(@PathParam("name") String name){
         return Response.ok(taskService.findByName(name)).build();
     }
 
     @GET
     @Path("/{id}")
-    public Response findById(UUID id){
+    public Response findById(@PathParam("id") UUID id){
         return Response.ok(taskService.findById(id)).build();
+    }
+
+    @GET
+    @Path("/status-active")
+    public Response findActiveTasks(){
+        return Response.ok(taskService.findByStatusActive()).build();
+    }
+
+    @GET
+    @Path("/status-active/user")
+    public Response findActiveTasksForUser(){
+        return Response.ok(taskService.findByStatusActiveForUser()).build();
+    }
+
+    @GET
+    @Path("/type/{type}")
+    public Response findByType(@PathParam("type") String type){
+        return Response.ok(taskService.findByType(type)).build();
     }
 
     @PUT
     @Path("/{id}")
-    public Response updateTask(UUID id, TaskRequestDto taskRequestDto){
-        return Response.ok(taskService.updateTask(id, taskRequestDto)).build();
+    public Response updateTask(@PathParam("id") UUID id, TaskRequestDto form) throws IOException {
+        return Response.ok(taskService.updateTask(id, form)).build();
+    }
+
+    @PUT
+    @Path("/alter-status/{id}")
+    public Response alterStatusTask(@PathParam("id") UUID id){
+        return Response.ok(taskService.alterStatusTask(id)).build();
     }
 
     @DELETE
     @Path("/{id}")
-    public Response deleteTask(UUID id){
+    public Response deleteTask(@PathParam("id") UUID id){
         taskService.deleteTask(id);
         return Response.noContent().build();
     }
-
 }

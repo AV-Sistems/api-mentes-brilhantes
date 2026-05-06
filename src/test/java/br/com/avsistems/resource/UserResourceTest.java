@@ -1,233 +1,241 @@
 package br.com.avsistems.resource;
 
+import br.com.avsistems.dto.response.UserResponseDto;
+import br.com.avsistems.service.UserService;
+import br.com.avsistems.type.UserType;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.http.ContentType;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @QuarkusTest
+@DisplayName("UserResource - Testes de endpoints existentes")
 public class UserResourceTest {
 
-    // 1. TESTE: CRIAR USUÁRIO (CAMINHO FELIZ)
-    @Test
-    public void testCreateUserEndpoint() {
-        String uniqueEmail = "sucesso" + System.currentTimeMillis() + "@teste.com";
-        String body = """
-                {
-                  "name": "Antonio Teste",
-                  "email": "%s",
-                  "password": "Senha123",
-                  "userType": "ADMIN"
-                }
-                """.formatted(uniqueEmail);
+    @InjectMock
+    UserService userService;
 
-        given()
-                .contentType(ContentType.JSON)
-                .body(body)
-                .when()
-                .post("/users")
-                .then()
-                .statusCode(201)
-                .body("name", is("Antonio Teste"))
-                .body("id", notNullValue());
+    private UserResponseDto user;
+
+    @BeforeEach
+    void setup() {
+        user = new UserResponseDto(
+                UUID.randomUUID(),
+                "Antonio",
+                "antonio@teste.com",
+                UserType.USER,
+                10,
+                10,
+                "uploads/users/test.png",
+                "Universidade X",
+                null,
+                null,
+                null,
+                null,
+                "Rua A",
+                "10",
+                "Centro",
+                "Sao Paulo",
+                "SP",
+                "Casa",
+                "00000-000"
+        );
     }
 
-    // 2. TESTE: CRIAR USUÁRIO JÁ EXISTENTE (ERRO 400)
+    // Endpoints publicos
+
     @Test
-    public void testCreateDuplicateUserShouldFail() {
-        String emailDuplicado = "duplicado" + System.currentTimeMillis() + "@teste.com";
-        String body = """
-                {
-                  "name": "Antonio",
-                  "email": "%s",
-                  "password": "123",
-                  "userType": "USER"
-                }
-                """.formatted(emailDuplicado);
+    void testFindAllUsers() {
+        when(userService.findAllActiveUser()).thenReturn(List.of(user));
 
-        // Cria o primeiro
-        given().contentType(ContentType.JSON).body(body).post("/users").then().statusCode(201);
-
-        // Tenta criar o segundo com o mesmo e-mail
         given()
-                .contentType(ContentType.JSON)
-                .body(body)
                 .when()
-                .post("/users")
-                .then()
-                .log().all() //mostra o json no console
-                .statusCode(400) // Verifica se o ExceptionMapper capturou o erro
-                .body("message", is("Email já cadastrado."));
-    }
-
-    // 3. TESTE: BUSCAR POR ID EXISTENTE (CAMINHO FELIZ)
-    @Test
-    public void testFindByIdSuccess() {
-        String body = """
-                {
-                  "name": "Busca Teste",
-                  "email": "busca@teste.com",
-                  "password": "123",
-                  "userType": "USER"
-                }
-                """;
-
-        // Primeiro criamos o usuário e pegamos o ID dele da resposta
-        String userId = given()
-                .contentType(ContentType.JSON)
-                .body(body)
-                .post("/users")
-                .then()
-                .statusCode(201)
-                .extract().path("id");
-
-        org.junit.jupiter.api.Assertions.assertNotNull(userId, "O ID retornado pela API não deveria ser nulo!");
-
-        // Agora buscamos por esse ID
-        given()
-                .pathParam("id", userId)
-                .when()
-                .get("/users/{id}")
+                .get("/users")
                 .then()
                 .statusCode(200)
-                .body("id", is(userId))
-                .body("name", is("Busca Teste"));
+                .body("$", hasSize(1))
+                .body("[0].name", is("Antonio"));
+
+        verify(userService, times(1)).findAllActiveUser();
     }
 
-    // 4. TESTE: BUSCAR POR ID INEXISTENTE (ERRO 404)
     @Test
-    public void testFindByIdNotFound() {
-        UUID randomId = UUID.randomUUID();
+    void testFindRanking() {
+        when(userService.findRankingByTotalPoints()).thenReturn(List.of(user));
 
         given()
                 .when()
-                .get("/users/" + randomId)
-                .then()
-                .statusCode(404) // Verifica o 404 do ExceptionMapper
-                .body("message", is("Usuário não encontrado."));
-    }
-
-    //Teste para buscar por email (sucesso)
-    @Test
-    public void testFindByEmailSuccess() {
-        String uniqueEmail = "teste" + System.currentTimeMillis() + "@email.com";
-        String body = """
-                {
-                  "name": "Busca Teste",
-                  "email": "%s",
-                  "password": "123",
-                  "userType": "USER"
-                }
-                """.formatted(uniqueEmail);
-
-        given()
-                .contentType(ContentType.JSON)
-                .body(body)
-                .post("/users")
-                .then()
-                .statusCode(201);
-
-        given().when()
-                .get("/users/email/" + uniqueEmail)
+                .get("/users/ranking")
                 .then()
                 .statusCode(200)
-                .body("name", is("Busca Teste"));
+                .body("$", hasSize(1))
+                .body("[0].totalPoints", is(10));
+
+        verify(userService, times(1)).findRankingByTotalPoints();
     }
 
     @Test
-    public void testFindByEmailNotFound() {
-        String email = "teste"+System.currentTimeMillis()+"@email.com";
-
-        given().when()
-                .get("/users/email/" + email)
-                .then()
-                .statusCode(404)
-                .body("message", is("Usuário não encontrado."));
-    }
-
-    @Test
-    public void testUpdateUserSuccess(){
-        String email = "success"+System.currentTimeMillis()+"@email.com";
-        String body = """
-                {
-                  "name": "Antonio",
-                  "email": "%s",
-                  "password": "123",
-                  "userType": "USER"
-                }
-                """.formatted(email);
+    void testFindByStateAndCity() {
+        when(userService.findByStateAndCity("SP", "Sao Paulo")).thenReturn(List.of(user));
 
         given()
-                .contentType(ContentType.JSON)
-                .body(body)
-                .post("/users")
-                .then()
-                .statusCode(201);
-    }
-
-    @Test
-    public void testUpdateUserNotFound(){
-        String email = "notfound"+System.currentTimeMillis()+"@email.com";
-        String body = """
-                {
-                  "name": "Antonio",
-                  "email": "%s",
-                  "userType": "USER"
-                }
-                """.formatted(email);
-
-        given()
-                .contentType(ContentType.JSON)
-                .body(body)
-                .pathParam("id", UUID.randomUUID())
                 .when()
-                .put("/users/{id}")
+                .get("/users/SP/Sao Paulo")
                 .then()
-                .statusCode(404)
-                .body("message", is("Usuário não encontrado."));
+                .statusCode(200)
+                .body("$", hasSize(1));
+
+        verify(userService, times(1)).findByStateAndCity("SP", "Sao Paulo");
     }
 
     @Test
-    public void testDeleteUserSuccess(){
-        String email = "success"+System.currentTimeMillis()+"@email.com";
-        String body = """
-                {
-                  "name": "Antonio",
-                  "email": "%s",
-                  "password": "123",
-                  "userType": "USER"
-                }
-                """.formatted(email);
-        String id = given()
-                .contentType(ContentType.JSON)
-                .body(body)
-                .post("/users")
-                .then()
-                .statusCode(201)
-                .extract().path("id");
+    void testFindByName() {
+        when(userService.findByNameContaining("Ant")).thenReturn(List.of(user));
 
         given()
-                .contentType(ContentType.JSON)
-                .pathParam("id", id)
                 .when()
-                .delete("/users/{id}")
+                .get("/users/name/Ant")
                 .then()
-                .statusCode(204);
+                .statusCode(200)
+                .body("$", hasSize(1));
+
+        verify(userService, times(1)).findByNameContaining("Ant");
     }
-@Test
-    public void testDeleteUserNotFound(){
+
+    @Test
+    void testFindByEducationInstituition() {
+        when(userService.findByEducationInstituitionContaining("Universidade")).thenReturn(List.of(user));
+
         given()
-                .contentType(ContentType.JSON)
-                .pathParam("id", UUID.randomUUID())
                 .when()
-                .delete("/users/{id}")
+                .get("/users/education-instituition/Universidade")
                 .then()
-                .statusCode(404)
-                .body("message", is("Usuário não encontrado."));
+                .statusCode(200);
+
+        verify(userService, times(1)).findByEducationInstituitionContaining("Universidade");
+    }
+
+    @Test
+    void testFindByUserType() {
+        when(userService.findByUserTypeContaining("USER")).thenReturn(List.of(user));
+
+        given()
+                .when()
+                .get("/users/user-type/USER")
+                .then()
+                .statusCode(200);
+
+        verify(userService, times(1)).findByUserTypeContaining("USER");
+    }
+
+    @Test
+    void testFindByMentesEdition() {
+        when(userService.findByMentesEditionContaining("2026")).thenReturn(List.of(user));
+
+        given()
+                .when()
+                .get("/users/mentes-edition/2026")
+                .then()
+                .statusCode(200);
+
+        verify(userService, times(1)).findByMentesEditionContaining("2026");
+    }
+
+    @Test
+    void testFindByDateOfBirth() {
+        when(userService.findByDateOfBirth(any())).thenReturn(List.of(user));
+
+        given()
+                .when()
+                .get("/users/date-of-birth/1990-01-01")
+                .then()
+                .statusCode(200);
+
+        verify(userService, times(1)).findByDateOfBirth(any());
+    }
+
+    @Test
+    void testFindInactiveUsers() {
+        when(userService.findAllInactiveUser()).thenReturn(List.of(user));
+
+        given()
+                .when()
+                .get("/users/inactive-user")
+                .then()
+                .statusCode(200)
+                .body("$", hasSize(1));
+
+        verify(userService, times(1)).findAllInactiveUser();
+    }
+
+    // Endpoints autenticados (sem token -> 401)
+
+    @Test
+    void testUpdateAddressWithoutAuth() {
+        given()
+                .contentType("application/json")
+                .body("{}")
+                .when()
+                .put("/users/adrress/" + UUID.randomUUID())
+                .then()
+                .statusCode(401);
+    }
+
+    @Test
+    void testUpdateUserWithoutAuth() {
+        given()
+                .contentType("application/json")
+                .body("{}")
+                .when()
+                .put("/users/" + UUID.randomUUID())
+                .then()
+                .statusCode(401);
+    }
+
+    @Test
+    void testAlterActiveUserWithoutAuth() {
+        given()
+                .when()
+                .put("/users/active-user/" + UUID.randomUUID())
+                .then()
+                .statusCode(401);
+    }
+
+    @Test
+    void testToggleUserTypeWithoutAuth() {
+        given()
+                .when()
+                .put("/users/user-type/" + UUID.randomUUID())
+                .then()
+                .statusCode(401);
+    }
+
+    @Test
+    void testUploadUserImageWithoutAuth() {
+        given()
+                .multiPart("image", "avatar.png", new byte[]{1, 2, 3})
+                .when()
+                .put("/users/" + UUID.randomUUID() + "/image")
+                .then()
+                .statusCode(401);
+    }
+
+    @Test
+    void testDeleteUserWithoutAuth(){
+        given()
+                .when()
+                .delete("/users/" + UUID.randomUUID())
+                .then()
+                .statusCode(401);
     }
 }
