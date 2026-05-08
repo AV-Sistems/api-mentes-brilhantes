@@ -12,7 +12,9 @@ public class CorsFilter implements ContainerResponseFilter {
     private static final Set<String> ALLOWED_ORIGINS = Set.of(
             "http://localhost:8081",
             "http://localhost:5173",
-            "http://192.168.1.14"
+            "http://192.168.1.14",
+            "https://testeapp.avsistems.com.br/admin",
+            "https://testeapp.avsistems.com.br"
     );
 
     @Override

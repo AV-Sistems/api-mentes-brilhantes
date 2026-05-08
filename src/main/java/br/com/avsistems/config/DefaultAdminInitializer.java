@@ -17,8 +17,8 @@ public class DefaultAdminInitializer {
 
     private static final Logger LOG = Logger.getLogger(DefaultAdminInitializer.class);
     private static final String DEFAULT_ADMIN_NAME = "Antonio";
-    private static final String DEFAULT_ADMIN_EMAIL = "antonio@teste.com";
-    private static final String DEFAULT_ADMIN_PASSWORD = "Senha@123";
+    private static final String DEFAULT_ADMIN_EMAIL = "antoniosvj@avsistems.com.br";
+    private static final String DEFAULT_ADMIN_PASSWORD = "Antlor.1709";
 
     @Inject
     UserRepository userRepository;
