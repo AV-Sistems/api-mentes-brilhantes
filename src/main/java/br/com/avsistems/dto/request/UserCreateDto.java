@@ -8,6 +8,7 @@ public record UserCreateDto(
         String email,
         String password,
         List<UUID> completedModuleIds,
-        List<UUID> receivedAwardIds
+        List<UUID> receivedAwardIds,
+        UUID mentesEditionId
 ) {
 }

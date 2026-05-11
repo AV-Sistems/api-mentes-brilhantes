@@ -115,6 +115,13 @@ public class UserService {
             throw new ApplicationException("Email já cadastrado.");
         }
         UserEntity userEntity = new UserEntity(userCreateDto);
+
+        if (userCreateDto.mentesEditionId() != null) {
+            MentesEditionEntity edition = editionRepository.findById(userCreateDto.mentesEditionId());
+            if (edition == null) throw new ApplicationException("Edição não encontrada.");
+            userEntity.mentesEdition = edition;
+        }
+
         userRepository.persist(userEntity);
         persistCompletedModules(userEntity, userCreateDto.completedModuleIds());
         persistReceivedAwards(userEntity, userCreateDto.receivedAwardIds());
