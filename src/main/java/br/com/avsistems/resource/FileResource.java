@@ -1,32 +1,35 @@
 package br.com.avsistems.resource;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
 import org.jboss.logging.Logger;
 
-import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
-@Path("/uploads")
+@jakarta.ws.rs.Path("/uploads")
 public class FileResource {
 
     private static final Logger LOG = Logger.getLogger(FileResource.class);
 
+    @ConfigProperty(name = "app.upload.root-dir", defaultValue = "uploads")
+    String uploadRootDir;
+
     @GET
-    @Path("/{type}/{filename}")
+    @jakarta.ws.rs.Path("/{type}/{filename}")
     public Response getFile(@PathParam("type") String type, @PathParam("filename") String filename) {
         try {
-            String filepath = "uploads/" + type + "/" + filename;
-            File file = new File(filepath);
+            Path directoryPath = Path.of(uploadRootDir, type).normalize();
+            Path filePath = directoryPath.resolve(filename).normalize();
 
-            if (!file.exists()) {
-                LOG.warnf("Arquivo não encontrado: %s", filepath);
+            if (!filePath.startsWith(directoryPath) || !Files.exists(filePath) || !Files.isRegularFile(filePath)) {
+                LOG.warnf("Arquivo não encontrado: %s", filePath);
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-            byte[] fileContent = Files.readAllBytes(file.toPath());
+            byte[] fileContent = Files.readAllBytes(filePath);
             String mediaType = getMediaType(filename);
 
             return Response.ok(fileContent)
@@ -55,4 +58,3 @@ public class FileResource {
         };
     }
 }
-
