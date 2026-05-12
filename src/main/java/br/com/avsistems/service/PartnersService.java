@@ -1,5 +1,6 @@
 package br.com.avsistems.service;
 
+import br.com.avsistems.config.AppTime;
 import br.com.avsistems.dto.request.PartnerMultipartForm;
 import br.com.avsistems.dto.request.PartnersCreateDto;
 import br.com.avsistems.dto.response.PartnersResponseDto;
@@ -39,12 +40,12 @@ public class PartnersService {
     }
 
     public List<PartnersResponseDto> FindByValidityAndStateAndCity(String state, String city){
-        LocalDate today = LocalDate.now();
+        LocalDate today = AppTime.today();
         return repository.findByValidatyAndStateAndCity(today, state.toLowerCase(), city.toLowerCase()).stream().map(PartnersResponseDto::new).toList();
     }
 
     public List<PartnersResponseDto> findAllByValidity (){
-        LocalDate today = LocalDate.now();
+        LocalDate today = AppTime.today();
         return repository.findByValidity(today).stream().map(PartnersResponseDto::new).toList();
     }
 

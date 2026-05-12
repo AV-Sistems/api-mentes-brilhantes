@@ -1,5 +1,6 @@
 package br.com.avsistems.entity;
 
+import br.com.avsistems.config.AppTime;
 import jakarta.persistence.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -29,7 +30,6 @@ public class UserReceivedAwardsEntity extends BaseEntity {
     public UserReceivedAwardsEntity(UserEntity user, ReceivedAwardsEntity receivedAward) {
         this.user = user;
         this.receivedAward = receivedAward;
-        this.awardedDate = LocalDateTime.now();
+        this.awardedDate = AppTime.now();
     }
 }
-
