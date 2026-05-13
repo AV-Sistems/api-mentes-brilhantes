@@ -28,7 +28,7 @@ public class GiftsResource {
     @GET
     public Response listAll() {
         return Response.ok(giftsService.listAll()).build();
-    }
+    } 
 
     @GET
     @Path("/available")

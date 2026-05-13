@@ -116,10 +116,10 @@ public class UserResource {
     }
 
     @PUT
-    @Path("/user-type/{id}/{userType}")
+    @Path("/user-type/{id}")
     @Authenticated
-    public Response toggleUserType(@PathParam("id") UUID id, @PathParam("userType") UserType userType){
-        return Response.ok(userService.toggleUserType(id, userType)).build();
+    public Response toggleUserType(@PathParam("id") UUID id){
+        return Response.ok(userService.toggleUserType(id)).build();
     }
 
     @DELETE

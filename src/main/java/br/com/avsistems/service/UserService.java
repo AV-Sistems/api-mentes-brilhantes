@@ -180,11 +180,16 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDto toggleUserType(UUID id, UserType userType) {
+    public UserResponseDto toggleUserType(UUID id) {
         UserEntity user = userRepository.findByIdOptional(id)
                 .orElseThrow(()-> new ApplicationException("Usuário não encontrado."));
 
-        user.userType = userType;
+        if(user.userType == UserType.ADMIN) {
+            user.userType = UserType.USER;
+        } else {
+            user.userType = UserType.ADMIN;
+        };
+
         return new UserResponseDto(user);
     }
 
