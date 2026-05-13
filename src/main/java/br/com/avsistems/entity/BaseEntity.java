@@ -1,5 +1,6 @@
 package br.com.avsistems.entity;
 
+import br.com.avsistems.config.AppTime;
 import jakarta.persistence.*;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -25,18 +26,18 @@ public class BaseEntity extends io.quarkus.hibernate.orm.panache.PanacheEntityBa
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.createdAt = AppTime.now();
+        this.updatedAt = this.createdAt;
     }
 
     @PreUpdate
     protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = AppTime.now();
     }
 
     // Método auxiliar para o Soft Delete
     public void softDelete() {
-        this.deletedAt = LocalDateTime.now();
+        this.deletedAt = AppTime.now();
         this.persist();
     }
 

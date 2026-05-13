@@ -1,13 +1,12 @@
 package br.com.avsistems.handler;
 
+import br.com.avsistems.config.AppTime;
 import br.com.avsistems.dto.response.ErrorResponse;
 import br.com.avsistems.exceptions.AuthException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
-
-import java.time.LocalDateTime;
 
 @Provider
 public class AuthExceptionHandler implements ExceptionMapper<AuthException> {
@@ -19,7 +18,7 @@ public class AuthExceptionHandler implements ExceptionMapper<AuthException> {
         ErrorResponse error = new ErrorResponse(
                 exception.getMessage(),
                 status.getStatusCode(),
-                LocalDateTime.now()
+                AppTime.now()
         );
 
         return Response.status(status)

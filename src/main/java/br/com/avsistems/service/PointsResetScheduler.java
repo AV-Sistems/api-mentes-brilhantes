@@ -15,7 +15,7 @@ public class PointsResetScheduler {
     @Inject
     UserRepository userRepository;
 
-    // Executa todo ano, dia 31/12 as 23:00 no horario de Sao Paulo.
+    // Executa todo ano, em 01/01 as 01:00 no horario de Sao Paulo.
     @Transactional
     @Scheduled(cron = "0 0 1 1 1 ?", identity = "yearly-points-reset", timeZone = "America/Sao_Paulo")
     void resetYearlyAndRedeemablePoints() {
@@ -23,4 +23,3 @@ public class PointsResetScheduler {
         LOG.infof("Reset anual de pontos executado. Usuarios afetados: %d", updated);
     }
 }
-

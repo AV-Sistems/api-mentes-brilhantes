@@ -1,12 +1,12 @@
 package br.com.avsistems.resource;
 
 import br.com.avsistems.dto.request.GiftsRequestDto;
+import br.com.avsistems.dto.request.GiftsMultipartForm;
 import br.com.avsistems.service.GiftsService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -42,6 +42,7 @@ public class GiftsResource {
         return Response.ok(giftsService.findById(id)).build();
     }
 
+
     @POST
     public Response createGift(GiftsRequestDto dto) {
         return Response.status(Response.Status.CREATED)
@@ -49,14 +50,15 @@ public class GiftsResource {
                 .build();
     }
 
+
     @PUT
     @Path("/{id}")
     public Response updateGift(@PathParam("id") UUID id, GiftsRequestDto dto) {
         return Response.ok(giftsService.updateGift(id, dto)).build();
     }
-
-    @PATCH
-    @Path("/{id}/status")
+    
+    @GET
+    @Path("/toggleStatus/{id}")
     public Response toggleStatus(@PathParam("id") UUID id) {
         return Response.ok(giftsService.toggleStatus(id)).build();
     }

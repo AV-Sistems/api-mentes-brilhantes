@@ -1,5 +1,6 @@
 package br.com.avsistems.entity;
 
+import br.com.avsistems.config.AppTime;
 import jakarta.persistence.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -29,7 +30,6 @@ public class UserCompletedModulesEntity extends BaseEntity {
     public UserCompletedModulesEntity(UserEntity user, CompletedModulesEntity completedModule) {
         this.user = user;
         this.completedModule = completedModule;
-        this.completedDate = LocalDateTime.now();
+        this.completedDate = AppTime.now();
     }
 }
-

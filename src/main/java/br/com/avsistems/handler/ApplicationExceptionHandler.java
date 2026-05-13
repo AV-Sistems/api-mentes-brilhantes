@@ -1,5 +1,6 @@
 package br.com.avsistems.handler;
 
+import br.com.avsistems.config.AppTime;
 import br.com.avsistems.dto.response.ErrorResponse;
 import br.com.avsistems.exceptions.ApplicationException;
 import br.com.avsistems.exceptions.BadRequestException;
@@ -10,8 +11,6 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import org.jboss.logging.Logger;
-
-import java.time.LocalDateTime;
 
 @Provider
 public class ApplicationExceptionHandler implements ExceptionMapper<ApplicationException> {
@@ -38,7 +37,7 @@ public class ApplicationExceptionHandler implements ExceptionMapper<ApplicationE
         ErrorResponse error = new ErrorResponse(
                 exception.getMessage(),
                 status.getStatusCode(),
-                LocalDateTime.now()
+                AppTime.now()
         );
 
         return Response.status(status)

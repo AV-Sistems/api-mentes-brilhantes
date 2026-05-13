@@ -1,5 +1,6 @@
 package br.com.avsistems.handler;
 
+import br.com.avsistems.config.AppTime;
 import br.com.avsistems.dto.response.ErrorResponse;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
@@ -8,8 +9,6 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import org.jboss.logging.Logger;
-
-import java.time.LocalDateTime;
 
 @Provider
 public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
@@ -39,7 +38,7 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
         ErrorResponse error = new ErrorResponse(
                 message,
                 status.getStatusCode(),
-                LocalDateTime.now()
+                AppTime.now()
         );
 
         return Response.status(status)
@@ -48,4 +47,3 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
                 .build();
     }
 }
-

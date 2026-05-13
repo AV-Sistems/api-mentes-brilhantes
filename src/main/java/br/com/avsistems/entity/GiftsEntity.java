@@ -18,7 +18,7 @@ import org.hibernate.annotations.SQLRestriction;
 public class GiftsEntity extends BaseEntity {
 
     @Column(nullable = false, length = 255)
-    public String name;
+    public String name; 
 
     @Column(name = "points_cost", nullable = false)
     public Integer pointsCost;

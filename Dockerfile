@@ -16,12 +16,16 @@ FROM eclipse-temurin:25-jre-alpine
 
 WORKDIR /app
 
+ENV APP_UPLOAD_ROOT_DIR=/data/uploads
+
 COPY --from=build /app/target/quarkus-app/lib/ ./lib/
 COPY --from=build /app/target/quarkus-app/*.jar ./
 COPY --from=build /app/target/quarkus-app/app/ ./app/
 COPY --from=build /app/target/quarkus-app/quarkus/ ./quarkus/
 
-RUN mkdir -p uploads
+RUN mkdir -p ${APP_UPLOAD_ROOT_DIR}
+
+VOLUME ["/data/uploads"]
 
 EXPOSE 8080
 
